@@ -14,7 +14,7 @@
 #define LcdDATA_PIN             PINC
 
 // Pinii de date ai LCD-ului
-#define LcdD4                   PC7
+#define LcdD4                   PC6
 #define LcdD5                   PC5
 #define LcdD6                   PC4
 #define LcdD7                   PC3
