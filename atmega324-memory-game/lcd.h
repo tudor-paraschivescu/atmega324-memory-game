@@ -29,6 +29,14 @@
 #define LcdRW                   PA6
 #define LcdE                    PA7
 
+// Portul pe care conectam pinul de control al iluminarii LCD-ului
+#define LcdBACKLIGHT_DDR             DDRC
+#define LcdBACKLIGHT_PORT            PORTC
+#define LcdBACKLIGHT_PIN             PINC
+
+// Pinul de control al iluminarii LCD-ului
+#define LcdA                   PC2
+
 /*****************************************************************************\
  * Comnezi utile                                                             *
 \*****************************************************************************/
@@ -75,6 +83,9 @@
 // Initializare LCD considerand o interfatare cu 4 pini de date.
 // Trebuie apelata inainte de a face orice operatie cu LCD-ul.
 void LCD_init(void);
+
+// Schimba lumina de fundal a LCD-ului
+void LCD_toggleBacklight(void);
 
 // Executa secventa de citire a unui octet de date de la LCD.
 // Pentru interfatarea cu 4 pini de date sunt necesare 2 transferuri.

@@ -44,6 +44,15 @@ void LCD_init(void)
     LCD_writeInstr(LCD_INSTR_incNoShift);
     // sterge display
     LCD_writeInstr(LCD_INSTR_clearDisplay);
+	
+	// seteaza pinul A ca output (activeaza/dezactiveaza iluminarea)
+	LcdBACKLIGHT_DDR |= (1 << LcdA);
+}
+
+// Schimba lumina de fundal a LCD-ului
+void LCD_toggleBacklight(void)
+{
+	LcdBACKLIGHT_PORT ^= (1 << LcdA);
 }
 
 // Executa secventa de citire a unui octet de date de la LCD.
