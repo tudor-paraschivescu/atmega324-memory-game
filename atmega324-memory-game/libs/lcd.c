@@ -247,3 +247,10 @@ void LCD_printAt(uint8_t addr, const char* msg)
 
 }
 
+void LCD_print2(const char* msg1, const char* msg2)
+{
+	LCD_writeInstr(LCD_INSTR_clearDisplay);
+	LCD_print(msg1);
+	LCD_writeInstr(LCD_INSTR_nextLine);
+	LCD_print(msg2);
+}

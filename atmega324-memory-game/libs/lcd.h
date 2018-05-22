@@ -120,5 +120,7 @@ void LCD_putCharAt(uint8_t addr, char c);           // Afiseaza caracterul pe LC
 void LCD_print(const char* msg);                    // Afiseaza string-ul pe LCD incepand de la adresa curenta.
 void LCD_printAt(uint8_t addr, const char* msg);    // Afiseaza string-ul pe LCD incepand de la adresa primita.
 
+void LCD_print2(const char* msg1, const char* msg2);
+
 #endif // LCD_H_
 

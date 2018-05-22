@@ -24,7 +24,7 @@ int test_rgb_led_matrix(void)
 			for (col = 1; col <= LED_MATRIX_WIDTH; col++) {
 				RGB_matrix_turn_on_red(row, col);
 				_delay_ms(500);
-				RGB_matrix_turn_off(row, col);
+				RGB_matrix_turn_off_col(col);
 			}
 		}
 
@@ -33,7 +33,7 @@ int test_rgb_led_matrix(void)
 			for (col = 1; col <= LED_MATRIX_WIDTH; col++) {
 				RGB_matrix_turn_on_green(row, col);
 				_delay_ms(500);
-				RGB_matrix_turn_off(row, col);
+				RGB_matrix_turn_off_col(col);
 			}
 		}
 		
@@ -42,7 +42,7 @@ int test_rgb_led_matrix(void)
 			for (col = 1; col <= LED_MATRIX_WIDTH; col++) {
 				RGB_matrix_turn_on_blue(row, col);
 				_delay_ms(500);
-				RGB_matrix_turn_off(row, col);
+				RGB_matrix_turn_off_col(col);
 			}
 		}
 

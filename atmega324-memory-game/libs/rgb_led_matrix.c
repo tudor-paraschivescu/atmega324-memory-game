@@ -46,7 +46,7 @@ static void unset_cathode(int col)
 void RGB_matrix_init(void)
 {
 	/* initializations */
-	int i, j;
+	int j;
 
 	/* set RED rows as output pins */
 	MATRIX_R_ROW1_DDR |= (1 << MATRIX_R_ROW1);
@@ -69,10 +69,8 @@ void RGB_matrix_init(void)
 			| (1 << MATRIX_C_COL3);
 
 	/* turn off all lights */
-	for (i = 1; i <= LED_MATRIX_HEIGHT; i++) {
-		for (j = 1; j <= LED_MATRIX_WIDTH; j++) {
-			RGB_matrix_turn_off(i, j);
-		}
+	for (j = 1; j <= LED_MATRIX_WIDTH; j++) {
+		RGB_matrix_turn_off_col(j);
 	}
 }
 
@@ -82,14 +80,20 @@ void RGB_matrix_turn_on_red(int row, int col)
 	switch (row) {
 	case 1:
 		MATRIX_R_ROW1_PORT |= (1 << MATRIX_R_ROW1);
+		MATRIX_G_ROW1_PORT &= ~(1 << MATRIX_G_ROW1);
+		MATRIX_B_ROW1_PORT &= ~(1 << MATRIX_B_ROW1);
 		break;
 
 	case 2:
 		MATRIX_R_ROW2_PORT |= (1 << MATRIX_R_ROW2);
+		MATRIX_G_ROW2_PORT &= ~(1 << MATRIX_G_ROW2);
+		MATRIX_B_ROW2_PORT &= ~(1 << MATRIX_B_ROW2);
 		break;
 
 	case 3:
 		MATRIX_R_ROW3_PORT |= (1 << MATRIX_R_ROW3);
+		MATRIX_G_ROW3_PORT &= ~(1 << MATRIX_G_ROW3);
+		MATRIX_B_ROW3_PORT &= ~(1 << MATRIX_B_ROW3);
 		break;
 	}
 
@@ -103,14 +107,20 @@ void RGB_matrix_turn_on_green(int row, int col)
 	switch (row) {
 	case 1:
 		MATRIX_G_ROW1_PORT |= (1 << MATRIX_G_ROW1);
+		MATRIX_R_ROW1_PORT &= ~(1 << MATRIX_R_ROW1);
+		MATRIX_B_ROW1_PORT &= ~(1 << MATRIX_B_ROW1);
 		break;
 
 	case 2:
 		MATRIX_G_ROW2_PORT |= (1 << MATRIX_G_ROW2);
+		MATRIX_R_ROW2_PORT &= ~(1 << MATRIX_R_ROW2);
+		MATRIX_B_ROW2_PORT &= ~(1 << MATRIX_B_ROW2);
 		break;
 
 	case 3:
 		MATRIX_G_ROW3_PORT |= (1 << MATRIX_G_ROW3);
+		MATRIX_R_ROW3_PORT &= ~(1 << MATRIX_R_ROW3);
+		MATRIX_B_ROW3_PORT &= ~(1 << MATRIX_B_ROW3);
 		break;
 	}
 
@@ -124,14 +134,20 @@ void RGB_matrix_turn_on_blue(int row, int col)
 	switch (row) {
 	case 1:
 		MATRIX_B_ROW1_PORT |= (1 << MATRIX_B_ROW1);
+		MATRIX_R_ROW1_PORT &= ~(1 << MATRIX_R_ROW1);
+		MATRIX_G_ROW1_PORT &= ~(1 << MATRIX_G_ROW1);
 		break;
 
 	case 2:
 		MATRIX_B_ROW2_PORT |= (1 << MATRIX_B_ROW2);
+		MATRIX_R_ROW2_PORT &= ~(1 << MATRIX_R_ROW2);
+		MATRIX_G_ROW2_PORT &= ~(1 << MATRIX_G_ROW2);
 		break;
 
 	case 3:
 		MATRIX_B_ROW3_PORT |= (1 << MATRIX_B_ROW3);
+		MATRIX_R_ROW3_PORT &= ~(1 << MATRIX_R_ROW3);
+		MATRIX_G_ROW3_PORT &= ~(1 << MATRIX_G_ROW3);
 		break;
 	}
 
@@ -139,7 +155,13 @@ void RGB_matrix_turn_on_blue(int row, int col)
 	set_cathode(col);
 }
 
-void RGB_matrix_turn_off(int row, int col)
+void RGB_matrix_turn_off_col(int col)
+{
+	/* unset the cathode on the given column */
+	unset_cathode(col);
+}
+
+void RGB_matrix_turn_off_row(int row)
 {
 	/* switch off all lights on the given row */
 	switch (row) {
@@ -161,7 +183,4 @@ void RGB_matrix_turn_off(int row, int col)
 		MATRIX_B_ROW3_PORT &= ~(1 << MATRIX_B_ROW3);
 		break;
 	}
-
-	/* unset the cathode on the given column */
-	unset_cathode(col);
 }
