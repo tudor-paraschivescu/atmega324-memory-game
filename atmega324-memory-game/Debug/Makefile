@@ -39,9 +39,12 @@ SUBDIRS :=  \
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
+../libs/game.c \
+../libs/gamepad.c \
 ../libs/lcd.c \
 ../libs/rgb_led_matrix.c \
 ../main.c \
+../unit_tests/gamepad_test.c \
 ../unit_tests/rgb_led_matrix_test.c
 
 
@@ -52,27 +55,39 @@ ASM_SRCS +=
 
 
 OBJS +=  \
+libs/game.o \
+libs/gamepad.o \
 libs/lcd.o \
 libs/rgb_led_matrix.o \
 main.o \
+unit_tests/gamepad_test.o \
 unit_tests/rgb_led_matrix_test.o
 
 OBJS_AS_ARGS +=  \
+libs/game.o \
+libs/gamepad.o \
 libs/lcd.o \
 libs/rgb_led_matrix.o \
 main.o \
+unit_tests/gamepad_test.o \
 unit_tests/rgb_led_matrix_test.o
 
 C_DEPS +=  \
+libs/game.d \
+libs/gamepad.d \
 libs/lcd.d \
 libs/rgb_led_matrix.d \
 main.d \
+unit_tests/gamepad_test.d \
 unit_tests/rgb_led_matrix_test.d
 
 C_DEPS_AS_ARGS +=  \
+libs/game.d \
+libs/gamepad.d \
 libs/lcd.d \
 libs/rgb_led_matrix.d \
 main.d \
+unit_tests/gamepad_test.d \
 unit_tests/rgb_led_matrix_test.d
 
 OUTPUT_FILE_PATH +=atmega324-memory-game.elf
@@ -89,6 +104,12 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
+
+
+
+
 
 
 
