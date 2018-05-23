@@ -5,14 +5,11 @@
  * Author : Tudor
  */ 
 
-#include <avr/io.h>
-
+#include "libs/game.h"
 
 int main(void)
 {
-    /* Replace with your application code */
-    while (1) 
-    {
-    }
+	game_init();
+	game_start();
 }
 
