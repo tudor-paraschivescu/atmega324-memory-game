@@ -82,12 +82,8 @@ void RGB_matrix_turn_on_green(int row, int col);
  * NOTE: Row/Column indexing starts at 1. */
 void RGB_matrix_turn_on_blue(int row, int col);
 
-/* Turn off the a certain LED column.
+/* Turn off the a certain LED.
  * NOTE: Column indexing starts at 1. */
-void RGB_matrix_turn_off_col(int col);
-
-/* Turn off the a certain LED row.
- * NOTE: Row indexing starts at 1. */
-void RGB_matrix_turn_off_row(int row);
+void RGB_matrix_turn_off(int row, int col);
 
 #endif /* RGB_LED_MATRIX_H_ */
