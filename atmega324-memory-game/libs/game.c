@@ -15,13 +15,51 @@ volatile int game_end = 1;
 
 /* Names of the game modes */
 const char game_modes[GAME_MODES][16] = {
-		"MATCH ME", "HAMMERING HANDS", "GREEN HAMM HANDS"
+		"MATCH ME",
+		"HAMMERING HANDS",
+		"GREEN HAMM HANDS",
+		"BLUE CENTER SHOT"
 };
 
 /* variables used in hammering hands game mode */
 volatile int hh_correct = 0;	/* signals press of the correct button */
 volatile int hh_button;			/* stores the button that should be pressed */
 volatile int hh_row, hh_col;	/* coords of LED */
+
+/* variables used in blue center shot game mode */
+volatile int scores[4] = { 0, 0, 0, 0 };	/* UP, DOWN, LEFT, RIGHT */
+volatile int is_blue = 0;
+volatile int player = -1;
+volatile int bcs_row, bcs_col;
+
+static void get_row_and_col(int nr, volatile int *row, volatile int *col)
+{
+	switch (nr) {
+		case 0:
+		/* UP side */
+		*row = 1;
+		*col = 2;
+		break;
+		
+		case 1:
+		/* DOWN side */
+		*row = 3;
+		*col = 2;
+		break;
+
+		case 2:
+		/* LEFT side */
+		*row = 2;
+		*col = 1;
+		break;
+
+		case 3:
+		/* RIGHT side */
+		*row = 2;
+		*col = 3;
+		break;
+	}
+}
 
 ISR(PCINT3_vect)
 {
@@ -126,6 +164,42 @@ ISR(PCINT3_vect)
 			}
 		}
 
+	} else if (current_game_mode == BLUE_CENTER_SHOT && !game_end) {
+		/* disable interrupts and take into account only first player */
+		cli();
+
+		/* find the player who pressed the button */
+		if (gamepad_is_up_pressed()) {
+			player = 0;
+		} else if (gamepad_is_down_pressed()) {
+			player = 1;
+		} else if (gamepad_is_left_pressed()) {
+			player = 2;
+		} else if (gamepad_is_right_pressed()) {
+			player = 3;
+		}
+
+		if (player != -1) {
+			/* turn off center LED */
+			RGB_matrix_turn_off(2, 2);
+			_delay_ms(10);
+
+			/* update score */
+			if (is_blue) {
+				scores[player] += 1;
+			} else {
+				scores[player] -= 1;
+			}
+
+			/* signal correct/wrong answer */
+			get_row_and_col(player, &bcs_row, &bcs_col);
+			if (is_blue) {
+				RGB_matrix_turn_on_green(bcs_row, bcs_col);
+			} else {
+				RGB_matrix_turn_on_red(bcs_row, bcs_col);
+			}
+		}
+
 	} else if (gamepad_is_game_pressed() && game_end) {
 		/* go to next game */
 		current_game_mode += 1;
@@ -221,6 +295,10 @@ void game_start(void)
 				case GREEN_HAMMERING_HANDS:
 					game_green_hammering_hands();
 					break;
+
+				case BLUE_CENTER_SHOT:
+					game_blue_center_shot();
+					break;
 			}
 
 			/* the game ended */
@@ -237,35 +315,6 @@ void game_start(void)
 				LCD_print2("Let's play!", "   Press GAME...");
 			}
 		}
-	}
-}
-
-static void get_row_and_col(int nr, volatile int *row, volatile int *col)
-{
-	switch (nr) {
-		case 0:
-		/* UP side */
-		*row = 1;
-		*col = 2;
-		break;
-		
-		case 1:
-		/* DOWN side */
-		*row = 3;
-		*col = 2;
-		break;
-
-		case 2:
-		/* LEFT side */
-		*row = 2;
-		*col = 1;
-		break;
-
-		case 3:
-		/* RIGHT side */
-		*row = 2;
-		*col = 3;
-		break;
 	}
 }
 
@@ -562,12 +611,140 @@ void game_green_hammering_hands(void)
 	_delay_ms(3000);
 }
 
+void print_score()
+{
+	char msg1[16], msg2[16], aux[16];
+	int i, len;
+
+	/* scores for UP and DOWN */
+	sprintf(msg1, "U %d", scores[0]);
+	sprintf(aux, "%d D", scores[1]);
+
+	/* format the space between scores */
+	len = 16 - strlen(msg1) - strlen(aux);
+	for (i = 0; i < len; i++) {
+		strcat(msg1, " ");
+	}
+	strcat(msg1, aux);
+
+	/* scores for LEFT and RIGHT */
+	sprintf(msg2, "L %d", scores[2]);
+	sprintf(aux, "%d R", scores[3]);
+
+	/* format the space between scores */
+	len = 16 - strlen(msg2) - strlen(aux);
+	for (i = 0; i < len; i++) {
+		strcat(msg2, " ");
+	}
+	strcat(msg2, aux);
+
+	LCD_print2(msg1, msg2);
+}
+
+char get_player_name(int nr)
+{
+	switch (nr) {
+	case 0:
+		return 'U';
+	case 1:
+		return 'D';
+	case 2:
+		return 'L';
+	case 3:
+		return 'R';
+	default:
+		return '-';
+	}
+}
+
 void game_center_shot(void)
 {
-	//TODO
 }
 
 void game_blue_center_shot(void)
 {
-	//TODO
+	int color, i, max = INT_MIN;
+	char msg[16], aux[16];
+
+	/* reset scores */
+	for (i = 0; i < 4; i++)
+		scores[i] = 0;
+
+	for (i = 1; i <= BLUE_CENTER_SHOT_ROUNDS; i++) {
+		/* show score */
+		print_score();
+		_delay_ms(1000);
+
+		/* initialise round */
+		is_blue = 0;
+		player = -1;
+
+		/* generate a random number to select the color */
+		color = rand() % 3;
+
+		switch (color) {
+		case 0:
+			RGB_matrix_turn_on_red(2, 2);
+			break;
+
+		case 1:
+			RGB_matrix_turn_on_green(2, 2);
+			break;
+
+		case 2:
+			is_blue = 1;
+			RGB_matrix_turn_on_blue(2, 2);
+			break;
+		}
+
+		/* enable interrupts */
+		sei();
+
+		/* signal the button to press */
+		_delay_ms(BLUE_CENTER_SHOT_REACTION_TIME);
+
+		if (player == -1) {
+			/* disable interrupts */
+			cli();
+
+			/* nobody pressed any button */
+			RGB_matrix_turn_off(2, 2);	
+		} else {
+			_delay_ms(500);
+			RGB_matrix_turn_off(bcs_row, bcs_col);
+		}
+
+		_delay_ms(500);
+	}
+
+	/* find max value */
+	for (i = 0; i < 4; i++) {
+		if (scores[i] > max) {
+			max = scores[i];
+		}
+	}
+
+	/* find winners */
+	int winners[4] = { -1, -1, -1, -1 };
+	int j = 0;
+	for (i = 0; i < 4; i++) {
+		if (scores[i] == max) {
+			winners[j++] = i;
+		}
+	}
+	
+	if (winners[1] == -1) {
+		/* there is only one winner */
+		sprintf(msg, "WINNER: %c w/ %d", get_player_name(winners[0]), max);
+	} else {
+		/* there are more winners */
+		sprintf(msg, "WINNERS: ");
+		for (i = 0; winners[i] != -1; i++) {
+			sprintf(aux, "%c ", get_player_name(winners[i]));
+			strcat(msg, aux);
+		}
+	}
+
+	LCD_print2(game_modes[BLUE_CENTER_SHOT], msg);
+	_delay_ms(5000);
 }

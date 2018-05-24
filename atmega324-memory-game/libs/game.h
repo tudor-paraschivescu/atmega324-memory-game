@@ -9,7 +9,9 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+#include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "gamepad.h"
 #include "lcd.h"
@@ -20,21 +22,24 @@
 \*****************************************************************************/
 
 /* Number of game modes */
-#define GAME_MODES 3
+#define GAME_MODES 4
 
 /* Game modes */
 #define MATCH_ME 0
 #define HAMMERING_HANDS 1
 #define GREEN_HAMMERING_HANDS 2
+#define BLUE_CENTER_SHOT 3
 
 /* Number of rounds */
 #define MATCH_ME_ROUNDS 10
 #define HAMMERING_HANDS_ROUNDS 10
 #define GREEN_HAMMERING_HANDS_ROUNDS 10
+#define BLUE_CENTER_SHOT_ROUNDS 20
 
 /* Reaction time for Hammering Hands game modes (measured in ms) */
 #define HAMMERING_HANDS_REACTION_TIME 300
 #define GREEN_HAMMERING_HANDS_REACTION_TIME 500
+#define BLUE_CENTER_SHOT_REACTION_TIME 1000
 
 /* Initialize the game */
 void game_init(void);
