@@ -11,10 +11,12 @@
 volatile int current_game_mode = -1;
 
 /* signals if a game ended */
-volatile int game_end = 0;
+volatile int game_end = 1;
 
 /* Names of the game modes */
-const char game_modes[GAME_MODES][16] = { "MATCH ME", "HAMMERING HANDS" };
+const char game_modes[GAME_MODES][16] = {
+		"MATCH ME", "HAMMERING HANDS", "GREEN HAMM HANDS"
+};
 
 /* variables used in hammering hands game mode */
 volatile int hh_correct = 0;	/* signals press of the correct button */
@@ -25,28 +27,28 @@ ISR(PCINT3_vect)
 {
 	if (current_game_mode == HAMMERING_HANDS && !game_end) {
 		switch (hh_button) {
-			case 0:
+		case 0:
 			/* UP side */
 			if (gamepad_is_up_pressed()) {
 				hh_correct = 1;
 			}
 			break;
 			
-			case 1:
+		case 1:
 			/* DOWN side */
 			if (gamepad_is_down_pressed()) {
 				hh_correct = 1;
 			}
 			break;
 
-			case 2:
+		case 2:
 			/* LEFT side */
 			if (gamepad_is_left_pressed()) {
 				hh_correct = 1;
 			}
 			break;
 
-			case 3:
+		case 3:
 			/* RIGHT side */
 			if (gamepad_is_right_pressed()) {
 				hh_correct = 1;
@@ -67,12 +69,72 @@ ISR(PCINT3_vect)
 			}
 		}
 
-	} else if (gamepad_is_game_pressed()) {
+	} else if (current_game_mode == GREEN_HAMMERING_HANDS && !game_end) {
+		switch (hh_button) {
+		case -1:
+			/* no button should have been pressed */
+			hh_correct = -1;
+			break;
+
+		case 0:
+			/* UP side */
+			if (gamepad_is_up_pressed()) {
+				hh_correct = 1;
+			}
+			break;
+			
+		case 1:
+			/* DOWN side */
+			if (gamepad_is_down_pressed()) {
+				hh_correct = 1;
+			}
+			break;
+
+		case 2:
+			/* LEFT side */
+			if (gamepad_is_left_pressed()) {
+				hh_correct = 1;
+			}
+			break;
+
+		case 3:
+			/* RIGHT side */
+			if (gamepad_is_right_pressed()) {
+				hh_correct = 1;
+			}
+			break;
+		}
+		
+		if (hh_correct) {
+			/* turn off the LED that showed what button to press */
+			RGB_matrix_turn_off(hh_row, hh_col);
+
+			/* disable interrupts so you cannot press more than one button */
+			cli();
+
+			if (hh_correct == -1) {
+				/* turn all lights red */
+				for (int k = 1; k <= LED_MATRIX_HEIGHT; k++) {
+					RGB_matrix_turn_on_red(k, k);
+				}
+				
+			} else if (hh_correct == 1) {
+				/* turn all lights green */
+				for (int k = 1; k <= LED_MATRIX_HEIGHT; k++) {
+					RGB_matrix_turn_on_green(k, k);
+				}
+			}
+		}
+
+	} else if (gamepad_is_game_pressed() && game_end) {
 		/* go to next game */
 		current_game_mode += 1;
 		if (current_game_mode >= GAME_MODES) {
 			current_game_mode = -1;
 		}
+		
+		/* try to limit button bounce */
+		_delay_ms(50);
 	}
 }
 
@@ -155,6 +217,10 @@ void game_start(void)
 				case HAMMERING_HANDS:
 					game_hammering_hands();
 					break;
+
+				case GREEN_HAMMERING_HANDS:
+					game_green_hammering_hands();
+					break;
 			}
 
 			/* the game ended */
@@ -174,9 +240,38 @@ void game_start(void)
 	}
 }
 
+static void get_row_and_col(int nr, volatile int *row, volatile int *col)
+{
+	switch (nr) {
+		case 0:
+		/* UP side */
+		*row = 1;
+		*col = 2;
+		break;
+		
+		case 1:
+		/* DOWN side */
+		*row = 3;
+		*col = 2;
+		break;
+
+		case 2:
+		/* LEFT side */
+		*row = 2;
+		*col = 1;
+		break;
+
+		case 3:
+		/* RIGHT side */
+		*row = 2;
+		*col = 3;
+		break;
+	}
+}
+
 void game_match_me(void)
 {
-	int line, i, j, k, lost;
+	int i, j, k, lost, row = 0, col = 0;
 	int lines[MATCH_ME_ROUNDS];
 	char msg[16];
 
@@ -188,40 +283,15 @@ void game_match_me(void)
 		LCD_print2(game_modes[MATCH_ME], msg);
 
 		/* generate a random number to select the side */
-		line = rand() % 4;
-		lines[i] = line;
+		lines[i] = rand() % 4;
 
 		for (j = 0; j <= i; j++) {
-			switch (lines[j]) {
-				case 0:
-				/* UP side */
-				RGB_matrix_turn_on_blue(1, 2);
-				_delay_ms(500);
-				RGB_matrix_turn_off(1, 2);
-				break;
-			
-				case 1:
-				/* DOWN side */
-				RGB_matrix_turn_on_blue(3, 2);
-				_delay_ms(500);
-				RGB_matrix_turn_off(3, 2);
-				break;
+			get_row_and_col(lines[j], &row, &col);
 
-				case 2:
-				/* LEFT side */
-				RGB_matrix_turn_on_blue(2, 1);
-				_delay_ms(500);
-				RGB_matrix_turn_off(2, 1);
-				break;
+			RGB_matrix_turn_on_blue(row, col);
+			_delay_ms(500);
 
-				case 3:
-				/* RIGHT side */
-				RGB_matrix_turn_on_blue(2, 3);
-				_delay_ms(500);
-				RGB_matrix_turn_off(2, 3);
-				break;
-			}
-
+			RGB_matrix_turn_off(row, col);
 			_delay_ms(500);
 		}
 
@@ -345,31 +415,7 @@ void game_hammering_hands(void)
 		line = rand() % 4;
 		hh_button = line;
 
-		switch (line) {
-			case 0:
-			/* UP side */
-			hh_row = 1;
-			hh_col = 2;
-			break;
-			
-			case 1:
-			/* DOWN side */
-			hh_row = 3;
-			hh_col = 2;
-			break;
-
-			case 2:
-			/* LEFT side */
-			hh_row = 2;
-			hh_col = 1;
-			break;
-
-			case 3:
-			/* RIGHT side */
-			hh_row = 2;
-			hh_col = 3;
-			break;
-		}
+		get_row_and_col(line, &hh_row, &hh_col);
 
 		/* enable interrupts */
 		sei();
@@ -414,7 +460,106 @@ void game_hammering_hands(void)
 
 void game_green_hammering_hands(void)
 {
-	//TODO
+	int line, i, j, k, wrong;
+	char msg[16];
+
+	for (i = 1; i <= GREEN_HAMMERING_HANDS_ROUNDS; i++) {
+		/* print round */
+		sprintf(msg, "ROUND %d", i);
+		LCD_print2(game_modes[GREEN_HAMMERING_HANDS], msg);
+
+		_delay_ms(1500);
+
+		hh_correct = 0;
+		hh_button = -1;
+
+		/* generate a random number to select wrong sides */
+		wrong = rand() % 5;
+		
+		/* light up sides of different colors than green */
+		for (j = 0; j < wrong; j++) {
+			/* enable interrupts */
+			sei();
+
+			line = rand() % 4;
+			get_row_and_col(line, &hh_row, &hh_col);
+
+			/* signal the button not to press */
+			if (j % 2) {
+				RGB_matrix_turn_on_blue(hh_row, hh_col);
+			} else {
+				RGB_matrix_turn_on_red(hh_row, hh_col);
+			}
+			
+			_delay_ms(GREEN_HAMMERING_HANDS_REACTION_TIME);
+
+			if (hh_correct == 0) {
+				RGB_matrix_turn_off(hh_row, hh_col);
+			} else if (hh_correct == -1) {
+				_delay_ms(500);
+
+				/* turn off the lights */
+				for (k = 1; k <= LED_MATRIX_HEIGHT; k++) {
+					RGB_matrix_turn_off(k, k);
+				}
+
+				break;
+			}
+
+			/* disable interrupts */
+			cli();
+
+			_delay_ms(1000);
+		}
+
+		if (hh_correct == -1) {
+			break;
+		}
+
+		/* generate a random number to select the side */
+		line = rand() % 4;
+		hh_button = line;
+		get_row_and_col(line, &hh_row, &hh_col);
+
+		/* enable interrupts */
+		sei();
+
+		/* signal the button to press */
+		RGB_matrix_turn_on_green(hh_row, hh_col);
+		_delay_ms(GREEN_HAMMERING_HANDS_REACTION_TIME);
+
+		/* disable interrupts */
+		cli();
+
+		if (hh_correct != 1) {
+			/* turn off the LED that showed what button to press */
+			RGB_matrix_turn_off(hh_row, hh_col);
+
+			/* turn all lights red */
+			for (k = 1; k <= LED_MATRIX_HEIGHT; k++) {
+				RGB_matrix_turn_on_red(k, k);
+			}
+		}
+
+		_delay_ms(500);
+
+		/* turn off the lights */
+		for (k = 1; k <= LED_MATRIX_HEIGHT; k++) {
+			RGB_matrix_turn_off(k, k);
+		}
+
+		if (hh_correct != 1) {
+			break;
+		}
+	}
+
+	if (hh_correct == 1) {
+		LCD_print2(game_modes[GREEN_HAMMERING_HANDS], "VICTORY !!!");
+	} else {
+		LCD_print2(game_modes[GREEN_HAMMERING_HANDS], "YOU LOST");
+	}
+
+	_delay_ms(3000);
 }
 
 void game_center_shot(void)
