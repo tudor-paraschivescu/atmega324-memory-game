@@ -20,13 +20,18 @@
 \*****************************************************************************/
 
 /* Number of game modes */
-#define GAME_MODES 1
+#define GAME_MODES 2
 
 /* Game modes */
 #define MATCH_ME 0
+#define HAMMERING_HANDS 1
 
 /* Number of rounds */
 #define MATCH_ME_ROUNDS 10
+#define HAMMERING_HANDS_ROUNDS 10
+
+/* Reaction time for Hammering Hands game mode (measured in ms) */
+#define HAMMERING_HANDS_REACTION_TIME 300
 
 /* Initialize the game */
 void game_init(void);

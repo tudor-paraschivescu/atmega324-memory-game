@@ -22,25 +22,55 @@ void gamepad_init(void)
 
 int gamepad_is_up_pressed(void)
 {
-	return !(GAMEPAD_PIN & (1 << GAMEPAD_PIN_UP));
+	if (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_UP))) {
+		/* wait for the button press to end */
+		while (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_UP)));
+		return 1;
+	}
+
+	return 0;
 }
 
 int gamepad_is_down_pressed(void)
 {
-	return !(GAMEPAD_PIN & (1 << GAMEPAD_PIN_DOWN));
+	if (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_DOWN))) {
+		/* wait for the button press to end */
+		while (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_DOWN)));
+		return 1;
+	}
+
+	return 0;
 }
 
 int gamepad_is_left_pressed(void)
 {
-	return !(GAMEPAD_PIN & (1 << GAMEPAD_PIN_LEFT));
+	if (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_LEFT))) {
+		/* wait for the button press to end */
+		while (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_LEFT)));
+		return 1;
+	}
+
+	return 0;
 }
 
 int gamepad_is_right_pressed(void)
 {
-	return !(GAMEPAD_PIN & (1 << GAMEPAD_PIN_RIGHT));
+	if (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_RIGHT))) {
+		/* wait for the button press to end */
+		while (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_RIGHT)));
+		return 1;
+	}
+
+	return 0;
 }
 
 int gamepad_is_game_pressed(void)
 {
-	return !(GAMEPAD_PIN & (1 << GAMEPAD_PIN_CHANGE_GAME));
+	if (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_CHANGE_GAME))) {
+		/* wait for the button press to end */
+		while (!(GAMEPAD_PIN & (1 << GAMEPAD_PIN_CHANGE_GAME)));
+		return 1;
+	}
+
+	return 0;
 }

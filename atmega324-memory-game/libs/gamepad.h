@@ -24,6 +24,8 @@
 #define GAMEPAD_DDR              DDRD
 #define GAMEPAD_PORT             PORTD
 #define GAMEPAD_PIN              PIND
+#define GAMEPAD_PCIE             PCIE3
+#define GAMEPAD_PCMSK            PCMSK3
 
 /* Pins for the buttons of the gamepad */
 #define GAMEPAD_PIN_UP				PD4
@@ -31,6 +33,13 @@
 #define GAMEPAD_PIN_LEFT			PD0
 #define GAMEPAD_PIN_RIGHT			PD5
 #define GAMEPAD_PIN_CHANGE_GAME		PD6
+
+/* Pin Change Interrupts for the buttons of the gamepad */
+#define GAMEPAD_PCINT_UP			PCINT28
+#define GAMEPAD_PCINT_DOWN			PCINT25
+#define GAMEPAD_PCINT_LEFT			PCINT24
+#define GAMEPAD_PCINT_RIGHT			PCINT29
+#define GAMEPAD_PCINT_CHANGE_GAME	PCINT30
 
 /*****************************************************************************\
  * API Gamepad                                                               *
