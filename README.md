@@ -7,8 +7,20 @@ The game wants to be a slightly simplified version of [MiniWizard](https://www.v
 
 The usefulness of such a game exists even today, because the small ones can learn and have fun in the same time, while developing their competitive spirit. However, the game is not only for children, as it can represent a good way for adults to escape the stress, while teenagers can create drinking games with this device (it's just an idea, you didn't heard it from me).
 
-# Hardware Description
+# Hardware Design
 The game has a RGB LED 3x3 matrix, which will light up and will form different patterns that must be followed by the players, and a gamepad with 4 buttons to interact with the game. Additionally, there is a button to switch from one game mode to another and a 2x16 LCD to display messages about the selected game, progress, winners and losers.
+
+### Gamepad Module
+![](https://raw.githubusercontent.com/tudor-paraschivescu/atmega324-memory-game/master/media/gamepad.jpg?raw=true)
+
+### RGB LED Matrix Module
+![](https://raw.githubusercontent.com/tudor-paraschivescu/atmega324-memory-game/master/media/matrix.jpg?raw=true)
+
+### LCD Module
+![](https://raw.githubusercontent.com/tudor-paraschivescu/atmega324-memory-game/master/media/lcd.jpg?raw=true)
+
+### Whole project
+![](https://raw.githubusercontent.com/tudor-paraschivescu/atmega324-memory-game/master/media/overall.jpg?raw=true)
 
 # Game modes
 
